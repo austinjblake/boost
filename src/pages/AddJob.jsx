@@ -31,18 +31,16 @@ const AddJob = () => {
 	if (error) console.log(`PREP ERROR: ${error}`);
 	const { data, isLoading, isSuccess, write } = useContractWrite({
 		...config,
-		onSettled(data, error) {
-			console.log('Settled', { data, error });
+		onSettled(data, err) {
+			console.log('Settled', { data, err });
+			if (err) return;
+			console.log(err);
+			callDb();
 		},
 	});
 
-	async function submitForm() {
-		if (!desc || !count || !price || submitting) return;
+	async function callDb() {
 		//setSubmitting(true);
-		// hash requestor address, count, desc, price
-		hash = utils.id(`${address}${desc}${count}${price}`);
-		// send txn
-		// if return sucess make api call to write in db
 		const data = await fetch(`http://localhost:5000/create`, {
 			method: 'POST',
 			headers: {
@@ -59,15 +57,22 @@ const AddJob = () => {
 		const createCall = await data.json();
 		console.log(createCall);
 		if (createCall.success) {
-			console.log(write, data, error);
-			write?.();
-			if (!write) return;
 			setSubmitting(false);
 			navigate(`/job/${hash}`);
 		} else {
 			setSubmitting(false);
 			console.log(createCall.error);
 		}
+	}
+
+	async function submitForm() {
+		if (!desc || !count || !price || submitting) return;
+		// hash requestor address, count, desc, price
+		hash = utils.id(`${address}${desc}${count}${price}`);
+		// send txn
+		// if return sucess make api call to write in db
+		console.log(write, data, error);
+		write?.();
 	}
 
 	if (!isConnected)
