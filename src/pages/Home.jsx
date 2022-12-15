@@ -52,7 +52,9 @@ const Home = () => {
 								<Typography sx={{ mb: 1.5 }} color='text.secondary'>
 									{j.finalized}
 								</Typography>
-								<Typography variant='body2'>{j.payout} ETH Bounty</Typography>
+								<Typography variant='body2'>
+									{j.payout} ETH Bounty Per Message
+								</Typography>
 								<Typography variant='body2'>
 									{j.requestedMessageCount} Messages Requested
 								</Typography>

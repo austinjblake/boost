@@ -10,15 +10,15 @@ const AddJob = () => {
 	const navigate = useNavigate();
 
 	const [desc, setDesc] = useState('');
-	const [count, setCount] = useState();
+	const [count, setCount] = useState(0);
 	const [email, setEmail] = useState('');
-	const [price, setPrice] = useState();
+	const [price, setPrice] = useState('0');
 	const [contractor, setContractor] = useState('');
 	const [submitting, setSubmitting] = useState(false);
 	const [msgvalue, setMsgvalue] = useState('');
-	const [hash, setHash] = useState('');
+	let hash = '';
 
-	const { config } = usePrepareContractWrite({
+	const { config, error } = usePrepareContractWrite({
 		address: '0xA120b5532aF8F79a30BAA1D43ee9A805c8c50371',
 		abi: abi.abi,
 		functionName: 'createContract',
@@ -26,16 +26,21 @@ const AddJob = () => {
 			from: address,
 			value: utils.parseEther(Number(msgvalue).toString()),
 		},
-		args: [hash, price, count],
+		args: [utils.formatBytes32String(hash), utils.parseEther(price), count],
 	});
-	const { data, isLoading, isSuccess, write } = useContractWrite(config);
+	if (error) console.log(`PREP ERROR: ${error}`);
+	const { data, isLoading, isSuccess, write } = useContractWrite({
+		...config,
+		onSettled(data, error) {
+			console.log('Settled', { data, error });
+		},
+	});
 
 	async function submitForm() {
 		if (!desc || !count || !price || submitting) return;
 		//setSubmitting(true);
 		// hash requestor address, count, desc, price
-		const hash = utils.id(`${address}${desc}${count}${price}`);
-		setHash(hash);
+		hash = utils.id(`${address}${desc}${count}${price}`);
 		// send txn
 		// if return sucess make api call to write in db
 		const data = await fetch(`http://localhost:5000/create`, {
@@ -54,6 +59,7 @@ const AddJob = () => {
 		const createCall = await data.json();
 		console.log(createCall);
 		if (createCall.success) {
+			console.log(write, data, error);
 			write?.();
 			if (!write) return;
 			setSubmitting(false);

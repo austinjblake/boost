@@ -131,7 +131,7 @@ const Job = () => {
 						<ListItem>
 							<ListItemButton>
 								<span style={{ marginRight: '10px' }}>
-									<strong>Bounty: </strong>
+									<strong>Bounty Per Message: </strong>
 								</span>
 								{contract.payout} ETH
 							</ListItemButton>
