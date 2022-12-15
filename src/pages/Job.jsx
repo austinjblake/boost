@@ -164,7 +164,7 @@ const Job = () => {
 								</>
 							)}
 						</ListItem>
-						{!contract.finalized && (
+						{!contract.finalized && contract.contractor && (
 							<ListItem>
 								<TextField
 									fullWidth
