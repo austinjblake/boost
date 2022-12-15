@@ -15,16 +15,35 @@ const AddJob = () => {
 	const [contractor, setContractor] = useState('');
 	const [submitting, setSubmitting] = useState(false);
 
-	function submitForm() {
+	async function submitForm() {
 		if (!desc || !count || !price || submitting) return;
-		setSubmitting(true);
-		console.log(desc, count, price, email, contractor);
+		//setSubmitting(true);
 		// hash requestor address, count, desc, price
 		const hash = utils.id(`${address}${desc}${count}${price}`);
 		// send txn
 		// if return sucess make api call to write in db
-		setSubmitting(false);
-		navigate(`/job/${hash}`);
+		const data = await fetch(`http://localhost:5000/create`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				addr: address,
+				hash: hash,
+				desc: desc,
+				bounty: price,
+				count: count,
+			}),
+		});
+		const createCall = await data.json();
+		console.log(createCall);
+		if (createCall.success) {
+			setSubmitting(false);
+			navigate(`/job/${hash}`);
+		} else {
+			setSubmitting(false);
+			console.log(createCall.error);
+		}
 	}
 
 	if (!isConnected)

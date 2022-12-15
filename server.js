@@ -1,18 +1,24 @@
 const dotenv = require('dotenv');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const bodyParser = require('body-parser');
 dotenv.config();
 
 app.use(cors());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-const connection = mysql.createConnection({
-	host: process.env.DB_HOST,
-	user: 'admin',
-	password: process.env.DB_PASS,
-	database: 'sys',
-});
+let connection;
+(async function () {
+	connection = await mysql.createConnection({
+		host: process.env.DB_HOST,
+		user: 'admin',
+		password: process.env.DB_PASS,
+		database: 'sys',
+	});
+})();
 
 const port = 5000;
 
@@ -20,35 +26,38 @@ app.get('/', (req, res) => {
 	res.send('Express server is running!');
 });
 
-app.get('/create', (req, res) => {
-	connection.query(
-		'CALL CREATE_CONTRACT(?, ?, ?, ?, ?)',
-		[
-			'0xaf2b395eD19872f1670A8991df740A9c547DfB0d',
-			'calchash',
-			'shill me plz',
-			3.5,
-			6,
-		],
-		function (err, result) {
-			if (err) throw err;
-
-			console.log('Contract inserted successfully!');
-			res.send('contract created!');
+app.post('/create', async (req, res) => {
+	try {
+		const userData = await connection.query('CALL CHECK_USER(?)', [
+			req.body.addr,
+		]);
+		const userExists = userData[0][0].length > 0;
+		if (!userExists) {
+			await connection.query('CALL CREATE_USER(?)', [req.body.addr]);
 		}
-	);
+		await connection.query('CALL CREATE_CONTRACT(?, ?, ?, ?, ?)', [
+			req.body.addr,
+			req.body.hash,
+			req.body.desc,
+			req.body.bounty,
+			req.body.count,
+		]);
+
+		res.send({ success: true });
+	} catch (err) {
+		res.send({ success: false, error: err });
+	}
 });
 
-app.get('/getContracts/:addr', (req, res) => {
-	connection.query(
-		'CALL GET_CONTRACTS_BY_ADDRESS(?)',
-		[req.params.addr],
-		function (err, result) {
-			if (err) throw err;
-
-			res.send(result[0]);
-		}
-	);
+app.get('/getContracts/:addr', async (req, res) => {
+	try {
+		const result = await connection.query('CALL GET_CONTRACTS_BY_ADDRESS(?)', [
+			req.params.addr,
+		]);
+		res.send(result[0][0]);
+	} catch (err) {
+		throw err;
+	}
 });
 
 app.listen(port, () => {
