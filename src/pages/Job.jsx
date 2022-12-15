@@ -1,4 +1,9 @@
-import { Typography } from '@mui/material';
+import { Typography, Box } from '@mui/material';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 import { useAccount } from 'wagmi';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -76,7 +81,62 @@ const Job = () => {
 			<Typography variant='h5' align='center'>
 				{routeParams?.id}
 			</Typography>
-			{contract ? <></> : <>Invalid Contract ID</>}
+			{contract ? (
+				<Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+					<List>
+						<ListItem>
+							<ListItemButton>
+								<span style={{ marginRight: '10px' }}>
+									<strong>Requestor: </strong>
+								</span>
+								{contract.requestor}
+							</ListItemButton>
+						</ListItem>
+						<ListItem>
+							<ListItemButton>
+								<span style={{ marginRight: '10px' }}>
+									<strong>Description: </strong>
+								</span>
+								{contract.descrip}
+							</ListItemButton>
+						</ListItem>
+						<ListItem>
+							<ListItemButton>
+								<span style={{ marginRight: '10px' }}>
+									<strong>Finalized?: </strong>
+								</span>
+								{contract.finalized ? 'Yes' : 'No'}
+							</ListItemButton>
+						</ListItem>
+						<ListItem>
+							<ListItemButton>
+								<span style={{ marginRight: '10px' }}>
+									<strong>Bounty: </strong>
+								</span>
+								{contract.payout} ETH
+							</ListItemButton>
+						</ListItem>
+						<ListItem>
+							<ListItemButton>
+								<span style={{ marginRight: '10px' }}>
+									<strong>Requested Message Count: </strong>
+								</span>
+								{contract.requestedMessageCount}
+							</ListItemButton>
+						</ListItem>
+						<ListItem>
+							<ListItemButton>
+								<span style={{ marginRight: '10px' }}>
+									<strong>Contractor: </strong>
+								</span>
+								{contract.contractor || 'Not Set'}
+							</ListItemButton>
+						</ListItem>
+					</List>
+				</Box>
+			) : (
+				<>Invalid Contract ID</>
+			)}
 		</>
 	);
 };
