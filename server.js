@@ -71,6 +71,26 @@ app.get('/getJob/:alias', async (req, res) => {
 	}
 });
 
+app.post('/selectContractor', async (req, res) => {
+	try {
+		const userData = await connection.query('CALL CHECK_USER(?)', [
+			req.body.contractor,
+		]);
+		const userExists = userData[0][0].length > 0;
+		if (!userExists) {
+			await connection.query('CALL CREATE_USER(?)', [req.body.contractor]);
+		}
+		await connection.query('CALL ADD_CONTRACTOR(?, ?)', [
+			req.body.alias,
+			req.body.contractor,
+		]);
+
+		res.send({ success: true });
+	} catch (err) {
+		res.send({ success: false, error: err });
+	}
+});
+
 app.listen(port, () => {
 	console.log(`Server is running on port ${port}`);
 });

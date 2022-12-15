@@ -1,9 +1,11 @@
-import { Typography, Box } from '@mui/material';
+import { Typography, Box, TextField } from '@mui/material';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
 import { useAccount } from 'wagmi';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -12,6 +14,8 @@ const Job = () => {
 	const { isConnected, address } = useAccount();
 	const routeParams = useParams();
 	const [contract, setContract] = useState();
+	const [contractor, setContractor] = useState();
+	const [updater, setUpdater] = useState(0);
 
 	useEffect(() => {
 		if (!isConnected) return;
@@ -24,7 +28,7 @@ const Job = () => {
 			setContract(job[0]);
 		};
 		getContracts();
-	}, [isConnected, address]);
+	}, [isConnected, address, updater]);
 
 	if (!isConnected)
 		return (
@@ -49,9 +53,24 @@ const Job = () => {
 	// display info
 	// progress, role, posts fulfilled, bounty, creator address
 
-	function selectContractor() {
-		// take address from input
-		// send txn
+	async function selectContractor() {
+		const data = await fetch(`http://localhost:5000/selectContractor`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				addr: address,
+				contractor: contractor,
+				alias: routeParams?.id,
+			}),
+		});
+		const res = await data.json();
+		console.log(res);
+		if (res.success) {
+			setContractor('');
+			setUpdater(updater + 1);
+		}
 	}
 
 	function submitTweetID() {
@@ -82,7 +101,7 @@ const Job = () => {
 				{routeParams?.id}
 			</Typography>
 			{contract ? (
-				<Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+				<Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
 					<List>
 						<ListItem>
 							<ListItemButton>
@@ -131,8 +150,33 @@ const Job = () => {
 								</span>
 								{contract.contractor || 'Not Set'}
 							</ListItemButton>
+							{!contract.contractor && (
+								<>
+									<TextField
+										id='filled-basic'
+										label='Contractor Address'
+										variant='filled'
+										value={contractor}
+										onChange={(e) => setContractor(e.target.value)}
+									/>
+									<Button onClick={selectContractor}>Add Contractor</Button>
+								</>
+							)}
 						</ListItem>
 					</List>
+					<div
+						style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+					>
+						<ButtonGroup
+							size='large'
+							variant='contained'
+							aria-label='outlined primary button group'
+						>
+							<Button>Cancel</Button>
+							<Button>Finalize</Button>
+							<Button>Withdraw</Button>
+						</ButtonGroup>
+					</div>
 				</Box>
 			) : (
 				<>Invalid Contract ID</>
