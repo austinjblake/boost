@@ -16,6 +16,7 @@ const Job = () => {
 	const [contract, setContract] = useState();
 	const [contractor, setContractor] = useState();
 	const [updater, setUpdater] = useState(0);
+	const [tweetID, setTweetID] = useState('');
 
 	useEffect(() => {
 		if (!isConnected) return;
@@ -163,6 +164,19 @@ const Job = () => {
 								</>
 							)}
 						</ListItem>
+						{!contract.finalized && (
+							<ListItem>
+								<TextField
+									fullWidth
+									id='filled-basic'
+									label='Submit Tweet ID for Verification'
+									variant='filled'
+									value={tweetID}
+									onChange={(e) => setTweetID(e.target.value)}
+								/>
+								<Button onClick={submitTweetID}>Submit ID</Button>
+							</ListItem>
+						)}
 					</List>
 					<div
 						style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
