@@ -154,7 +154,7 @@ const Job = () => {
 							{!contract.contractor && (
 								<>
 									<TextField
-										id='filled-basic'
+										id='contractor'
 										label='Contractor Address'
 										variant='filled'
 										value={contractor}
@@ -168,7 +168,7 @@ const Job = () => {
 							<ListItem>
 								<TextField
 									fullWidth
-									id='filled-basic'
+									id='tweetid'
 									label='Submit Tweet ID for Verification'
 									variant='filled'
 									value={tweetID}
