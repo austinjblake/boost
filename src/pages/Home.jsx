@@ -1,4 +1,6 @@
-import { Card, Fab, Typography } from '@mui/material';
+import { Card, Fab, Typography, Button } from '@mui/material';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
@@ -33,7 +35,34 @@ const Home = () => {
 				My Jobs
 			</Typography>
 			{jobList.length > 0 &&
-				jobList.map((j, i) => <Card key={j.id}>Job {i}</Card>)}
+				jobList.map((j, i) => (
+					<Link to={`/job/${j.alias}`} key={j.id}>
+						<Card variant='outlined' sx={{ margin: '2em 0' }}>
+							<CardContent>
+								<Typography
+									sx={{ fontSize: 14 }}
+									color='text.secondary'
+									gutterBottom
+								>
+									{j.alias}
+								</Typography>
+								<Typography variant='h5' component='div'>
+									{j.descrip}
+								</Typography>
+								<Typography sx={{ mb: 1.5 }} color='text.secondary'>
+									{j.finalized}
+								</Typography>
+								<Typography variant='body2'>{j.payout} ETH Bounty</Typography>
+								<Typography variant='body2'>
+									{j.requestedMessageCount} Messages Requested
+								</Typography>
+							</CardContent>
+							<CardActions>
+								<Button size='small'>View Contract</Button>
+							</CardActions>
+						</Card>
+					</Link>
+				))}
 			{!jobList.length && (
 				<Typography align='center' color='textSecondary'>
 					You have no jobs

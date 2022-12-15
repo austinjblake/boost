@@ -60,6 +60,17 @@ app.get('/getContracts/:addr', async (req, res) => {
 	}
 });
 
+app.get('/getJob/:alias', async (req, res) => {
+	try {
+		const result = await connection.query('CALL GET_CONTRACT_BY_ALIAS(?)', [
+			req.params.alias,
+		]);
+		res.send(result[0][0]);
+	} catch (err) {
+		throw err;
+	}
+});
+
 app.listen(port, () => {
 	console.log(`Server is running on port ${port}`);
 });

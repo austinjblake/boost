@@ -1,12 +1,25 @@
 import { Typography } from '@mui/material';
 import { useAccount } from 'wagmi';
 import { useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const Job = () => {
 	const { isConnected, address } = useAccount();
 	const routeParams = useParams();
 	const [contract, setContract] = useState();
+
+	useEffect(() => {
+		if (!isConnected) return;
+		const getContracts = async () => {
+			const data = await fetch(
+				`http://localhost:5000/getJob/${routeParams?.id}`
+			);
+			const job = await data.json();
+			console.log(job[0]);
+			setContract(job[0]);
+		};
+		getContracts();
+	}, [isConnected, address]);
 
 	if (!isConnected)
 		return (
